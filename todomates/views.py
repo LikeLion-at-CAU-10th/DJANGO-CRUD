@@ -178,6 +178,9 @@ def delete_category(request, id):
         })
 
 
+
+
+## SESSION 03
 def create_todo(request, category_id):
     if request.method == "POST":
 
