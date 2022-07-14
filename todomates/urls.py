@@ -11,4 +11,7 @@ urlpatterns = [
     path('update-category/<int:id>', update_category, name= 'update-category'),
     path('delete-category/<int:id>', delete_category, name= 'delete-category'),
     
+    path('create-todo/<int:category_id>', create_todo, name= 'create-todo'),
+
+
 ]

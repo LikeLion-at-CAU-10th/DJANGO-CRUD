@@ -176,3 +176,137 @@ def delete_category(request, id):
                 'message': 'method error',
                 'data': None
         })
+
+
+def create_todo(request, category_id):
+    if request.method == "POST":
+
+        # 이미지 파일이 있으므로 request에서 구분하여 받기
+        body =  request.POST
+        img = request.FILES['thumb_nail']
+        
+        new_todo = Todo.objects.create(
+            # 'Category' X // Category(O)
+            category = get_object_or_404(Category, pk = category_id),
+            content = body['content'],
+            thumb_nail = img
+        )
+
+        # queryset 자료를 json 모양으로 데이터를 이쁘게 정리해주기
+        new_todo_json={
+            "id"        : new_todo.id,
+            "title"     : new_todo.content,
+            "thumb_nail" : '/media/' + str(new_todo.thumb_nail),
+            "pup_date"  : new_todo.pup_date,
+        }
+
+        # 성공 할 경우 client가 받을 데이터 모양
+        return JsonResponse({
+                'status': 200,
+                'success': True,
+                'message': 'todo 생성 성공!',
+                'data': new_todo_json    # 이쁘게 만든 데이터를 respons['data']에 담아 보내줌
+            })
+
+    return JsonResponse({
+                'status': 405,
+                'success': False,
+                'message': 'method error',
+                'data': None
+        })
+
+def get_todo_all(request, category_id):
+    if request.method == "GET":
+
+        ## 중요!! todo_all 에서는 모든 todo를 받아오는 것이 아니다!!
+        ## 부모요소의 키값을 fk 로 갖고 있는 놈들 다가져오기 -> filter!!
+        category_todo = Todo.objects.filter(category = category_id)
+        
+
+        # 이후 클라이언트가 필요한 모양으로 데이터 이쁘게~~
+        category_todo_json=[]
+        for todo in category_todo:
+            new_set={
+                "todo_id" : todo.id,
+                "content" : todo.content,
+                "thumb_nail" : "/media/" + str(todo.thumb_nail),
+                "is_completed" : todo.is_completed,
+                "pup_date" : todo.pup_date
+            }
+            category_todo_json.append(new_set)
+        
+        return JsonResponse({
+                'status': 200,
+                'success': True,
+                'message': 'todo_all 수신 성공!',
+                'data': category_todo_json
+            })
+
+    return JsonResponse({
+            'status': 405,
+            'success': False,
+            'message': 'method error',
+            'data': None
+        })
+
+def get_todo(request, todo_id):
+    if request.method == "GET":
+        todo = get_object_or_404(Todo,pk = todo_id)
+        todo_json={
+                "todo_id" : todo.id,
+                "content" : todo.content,
+                "thumb_nail" : "/media/" + str(todo.thumb_nail),
+                "is_completed" : todo.is_completed,
+                "pup_date" : todo.pup_date
+        }
+        
+        return JsonResponse({
+                'status': 200,
+                'success': True,
+                'message': 'todo 수신 성공!',
+                'data': todo_json
+            })
+
+    return JsonResponse({
+                'status': 405,
+                'success': False,
+                'message': 'method error',
+                'data': None
+            })
+
+def update_todo(request, todo_id):
+    if request.method == "POST":
+        
+        body = request.POST
+        img = request.FILES['thumb_nail']
+
+        update_todo = get_object_or_404(Todo,pk = todo_id)
+        update_todo.content = body['content']
+        update_todo.is_completed = body['is_completed']
+        update_todo.thumb_nail = img
+        update_todo.save()
+
+        
+        update_todo_json={
+            "id" : update_todo.id,
+            "content" : update_todo.content,
+            "thumb_nail" : "/media/"+ str(update_todo.thumb_nail),
+            "is_completed" : update_todo.is_completed,
+            "pup_date" : update_todo.pup_date
+        }
+
+        return JsonResponse({
+            'status': 200,
+            'success': True,
+            'message': 'Todo 업데이트 성공!',
+            'data': update_todo_json
+        })
+
+    return JsonResponse({
+        'status': 405,
+        'success': False,
+        'message': 'method error',
+        'data': None
+    })
+
+def delete_todo(request, todo_id):
