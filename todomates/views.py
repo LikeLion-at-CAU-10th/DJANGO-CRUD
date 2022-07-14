@@ -249,15 +249,19 @@ def get_todo_all(request, category_id):
             'data': None
         })
 
+
+# 예는 특정 todo 하나만 불러오므로 todo_id 값을 인자로 받아야함!!!
 def get_todo(request, todo_id):
     if request.method == "GET":
-        todo = get_object_or_404(Todo,pk = todo_id)
+
+        # 해당 todo_id 에 해당하는 Todo 모델 가져오기
+        todo = get_object_or_404(Todo, pk = todo_id)
         todo_json={
-                "todo_id" : todo.id,
-                "content" : todo.content,
-                "thumb_nail" : "/media/" + str(todo.thumb_nail),
-                "is_completed" : todo.is_completed,
-                "pup_date" : todo.pup_date
+            "todo_id" : todo.id,
+            "content" : todo.content,
+            "thumb_nail" : "/media/" + str(todo.thumb_nail),
+            "is_completed" : todo.is_completed,
+            "pup_date" : todo.pup_date
         }
         
         return JsonResponse({
@@ -277,9 +281,11 @@ def get_todo(request, todo_id):
 def update_todo(request, todo_id):
     if request.method == "POST":
         
+        ### 중요!! method 를 UPDATE 로 진행하지 않고 POST로 진행!!
         body = request.POST
         img = request.FILES['thumb_nail']
 
+        # 수정방법은 객체를 불러와서 각 속성에 접근하면 됨!!
         update_todo = get_object_or_404(Todo,pk = todo_id)
         update_todo.content = body['content']
         update_todo.is_completed = body['is_completed']
@@ -294,6 +300,7 @@ def update_todo(request, todo_id):
             "is_completed" : update_todo.is_completed,
             "pup_date" : update_todo.pup_date
         }
+        
 
         return JsonResponse({
             'status': 200,
@@ -310,3 +317,21 @@ def update_todo(request, todo_id):
     })
 
 def delete_todo(request, todo_id):
+
+    if request.method == "DELETE":
+        delete_todo = get_object_or_404(Todo, pk = todo_id)
+        delete_todo.delete()
+
+        return JsonResponse({
+                'status': 200,
+                'success': True,
+                'message': 'todo 삭제 성공!',
+                'data': None
+            })
+
+    return JsonResponse({
+            'status': 405,
+            'success': False,
+            'message': 'method error',
+            'data': None
+        })
