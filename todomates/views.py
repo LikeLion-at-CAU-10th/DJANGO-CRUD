@@ -188,6 +188,7 @@ def create_todo(request, category_id):
         body =  request.POST
         img = request.FILES['thumb_nail']
         
+        # request를 통해 들어온 정보로 Todo 모델 만들기
         new_todo = Todo.objects.create(
             # 'Category' X // Category(O)
             category = get_object_or_404(Category, pk = category_id),
@@ -253,7 +254,7 @@ def get_todo_all(request, category_id):
         })
 
 
-# 예는 특정 todo 하나만 불러오므로 todo_id 값을 인자로 받아야함!!!
+# 여기부터는 특정 todo 하나만 불러오므로 todo_id 값을 인자로 받아야함!!!
 def get_todo(request, todo_id):
     if request.method == "GET":
 
